@@ -37,13 +37,22 @@ export default class FileExplorerNoteCount extends Plugin {
 
         const name = match[1];
         const sanitised = this.sanitiseTitle(name)
+        var newPath = sanitised + ".md"
 
-        if (sanitised == file.name) {
+        if (sanitised == file.name.replace(".md", "")) {
             console.log("Already renamed, skipping")
+            return
         }
 
-        console.log("New name: " + sanitised)
-        await this.app.fileManager.renameFile(file, sanitised + ".md")
+        var idx = 0
+        while(await this.app.vault.adapter.exists(newPath)) {
+            idx += 1
+            newPath = sanitised + "-" + idx.toString() + ".md"
+        }
+
+        console.log("New name: " + newPath)
+        
+        await this.app.fileManager.renameFile(file, newPath)
         console.log("Done!")
     }
 
